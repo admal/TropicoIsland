@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Tropico island - WebGL</title>
+    <link rel="stylesheet" href="index.css" />
+</head>
+<body>
+<!--SHADERS-->
+<script id="x-shader" type="nojs">
+    attribute vec4 a_position;
+    attribute vec4 a_color;
+    attribute vec3 a_normal;
+
+    uniform mat4 u_matrix;
+    uniform mat4 u_worldInverseTranspose;
+
+    varying vec4 v_color;
+    varying vec3 v_normal;
+    uniform vec3 u_lightingDirection;
+
+    vec3 ambient = vec3(0.0, 0.0, 0.0);
+    vec3 dirColor = vec3(1.0,1.0,1.0);
+    varying vec3 v_LightWeighting;
+
+    void main() {
+        // Multiply the position by the matrix.
+        gl_Position =u_matrix * a_position;
+
+
+            vec3 transformedNormal = vec3(u_matrix) * a_normal;
+            float directionalLightWeighting = max(dot(transformedNormal, u_lightingDirection), 0.0);
+            v_LightWeighting = ambient + dirColor * directionalLightWeighting;
+
+        // Pass the color to the fragment shader.
+            v_color = a_color;
+    }
+</script>
+
+<script id="x-fragment-shader" type="nojs">
+    precision mediump float;
+
+    // Passed in from the vertex shader.
+    varying vec4 v_color;
+    //varying vec3 v_normal;
+    varying vec3 v_LightWeighting;
+
+    //uniform vec3 u_lightingDirection;
+
+    void main() {
+        // because v_normal is a varying it's interpolated
+        // we it will not be a uint vector. Normalizing it
+        // will make it a unit vector again
+        //vec3 normal = normalize(v_normal);//  vec3(0.0, 0.0,1.0 );//
+        //vec3 normalL = normalize(u_lightingDirection);
+
+        //vec3 ambient = vec3(0.2, 0.2, 0.2);
+        //vec3 dirColor = vec3(1.0,1.0,1.0);
+
+        //float weightingL = max(dot(u_lightingDirection, normal), 0.0);
+        //float weightingL = max(dot(normal, normalL), 0.0);
+        //vec3 vLightWeighting = ambient + dirColor * weightingL;
+
+        gl_FragColor = v_color;
+        //gl_FragColor = vec4(vec3(v_color) * v_LightWeighting, 1.0);
+
+    }
+</script>
+
+<!--MAIN CANVAS-->
+<div class="debug-info" style="display: block;">
+    <span>Camera info: </span>
+    <span id="camera-info"></span>
+    <br>
+    <span>Sphere info</span>
+    <span id="sphere-info"></span>
+</div>
+<canvas id="main-canvas"></canvas>
+
+<!-- LIBRARIES -->
+<script src="lib/gl-matrix.js"></script>
+<script src="lib/webgl-obj-loader.js"></script>
+
+<!-- SOURCES -->
+<script src="src/camera.js"></script>
+<script src="src/generics/sphere.js"></script>
+<script src="src/generics/plain.js"></script>
+<script src="src/utils-webgl.js"></script>
+<script src="src/drawing-utils.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
