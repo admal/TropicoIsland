@@ -74,50 +74,29 @@ function Sphere(radius, initialPosition,color) {
         indexBuffer.itemSize = 1;
         indexBuffer.numItems = this.indexData.length;
 
-        var colors = [];
-        for(var i = 0; i < this.indexData.length; i++) {
-            colors.push(this.color[0]);
-            colors.push(this.color[1]);
-            colors.push(this.color[2]);
-            colors.push(this.color[3]);
-        }
-
-        var colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-        colorBuffer.itemSize = 4;
-        indexBuffer.numItems = colors.length / 4;
-
         this.normalBuffer = normalBuffer;
         this.vertexBuffer = vertexBuffer;
         this.indexBuffer = indexBuffer;
-        this.colorBuffer = colorBuffer;
     };
 
     this.draw = function(gl, app){
+        var m = mat4.create();
+        mat4.multiply(m, app.camera.getMatrix(), this.translation);
+
+        var lightingDirection = [-0.25, -0.25, -1];
+        var adjustedLD = vec3.create();
+        vec3.normalize(adjustedLD, lightingDirection);
+        vec3.scale(adjustedLD,adjustedLD, -1);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(app.program.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(app.program.colorAttribute, this.colorBuffer.itemSize, gl.FLOAT, false, 0,0);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.vertexAttribPointer(app.program.normalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
 
-
-        // mat4.multiply(this.translation, this.translation, app.camera.getMatrix());
-        var m = mat4.create();
-        mat4.multiply(m, app.camera.getMatrix(), this.translation);
-        // mat4.translate(this.translation, app.camera.getMatrix(), this.translation);
-        // mat4.rotate(this.translation, app.camera.getMatrix(), this.translation);
-        gl.uniformMatrix4fv(app.program.matrixUniform, false, m);   // set the light direction.
-
-        var lightingDirection = [-0.25, -0.25, -1];
-        var adjustedLD = vec3.create();
-        vec3.normalize(lightingDirection, adjustedLD);
-        vec3.scale(adjustedLD, -1);
-        gl.uniform3fv(app.program.reverseLightDirectionLocation, adjustedLD);
+        gl.uniform4fv(app.program.colorUniform, this.color);
+        gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
+        gl.uniform3fv(app.program.reverseLightDirectionUniform, adjustedLD);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);

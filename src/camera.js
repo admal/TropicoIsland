@@ -31,7 +31,7 @@ function Camera(aspectRatio) {
 
 
         var zNear = 1;
-        var zFar = 2000;
+        var zFar = 4000;
         var fieldOfViewRadians = degToRad(60);
         var projectionMatrix = mat4.create();
         mat4.perspective(projectionMatrix, fieldOfViewRadians, this.aspectRatio, zNear, zFar);

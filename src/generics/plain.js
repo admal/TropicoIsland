@@ -27,13 +27,7 @@ function Plane(initialPosition, color, size) {
             y2,z,  x2,
         ];
 
-        // x1,z, y1,
-        //     x2,z,y1,
-        //     x1,z,  y2,
-        //     x1,z,  y2,
-        //     x2,z, y1,
-        //     x2,z,  y2,
-
+        this.normalData = this.vertexPositions;
         this.indexData = [
             0, 1, 2, 3, 4, 5
         ];
@@ -42,11 +36,11 @@ function Plane(initialPosition, color, size) {
     this.initBuffers = function (gl) {
         this._initData();
 
-        // var normalBuffer = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-        // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normalData), gl.STATIC_DRAW);
-        // normalBuffer.itemSize = 3;
-        // normalBuffer.numItems = this.normalData.length / 3;
+        var normalBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.normalData), gl.STATIC_DRAW);
+        normalBuffer.itemSize = 3;
+        normalBuffer.numItems = this.normalData.length / 3;
 
         var vertexBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -60,47 +54,32 @@ function Plane(initialPosition, color, size) {
         indexBuffer.itemSize = 1;
         indexBuffer.numItems = this.indexData.length;
 
-        var colors = [];
-        for (var i = 0; i < this.indexData.length; i++) {
-            colors.push(this.color[0]);
-            colors.push(this.color[1]);
-            colors.push(this.color[2]);
-            colors.push(this.color[3]);
-        }
 
-        var colorBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-        colorBuffer.itemSize = 4;
-        indexBuffer.numItems = colors.length / 4;
-
-        // this.normalBuffer = normalBuffer;
+        this.normalBuffer = normalBuffer;
         this.vertexBuffer = vertexBuffer;
         this.indexBuffer = indexBuffer;
-        this.colorBuffer = colorBuffer;
     };
 
     this.draw = function (gl, app) {
+        var m = mat4.create();
+        mat4.multiply(m, app.camera.getMatrix(), this.translation);
+
+        var lightingDirection = [-0.25, -0.25, -1];
+        var adjustedLD = vec3.create();
+        vec3.normalize(adjustedLD, lightingDirection);
+        vec3.scale(adjustedLD,adjustedLD, -1);
+
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(app.program.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(app.program.colorAttribute, this.colorBuffer.itemSize, gl.FLOAT, false, 0,0);
-        //
-        // gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
-        // gl.vertexAttribPointer(app.program.normalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+        gl.vertexAttribPointer(app.program.normalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
+        gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
+        gl.uniform3fv(app.program.reverseLightDirectionUniform, adjustedLD);
+        gl.uniform4fv(app.program.colorUniform, this.color);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-
-        // mat4.multiply(this.translation, this.translation, app.camera.getMatrix());
-        var m = mat4.create();
-        mat4.multiply(m, app.camera.getMatrix(), this.translation);
-        // mat4.translate(this.translation, app.camera.getMatrix(), this.translation);
-        // mat4.rotate(this.translation, app.camera.getMatrix(), this.translation);
-        gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
-        gl.uniform3fv(app.program.reverseLightDirectionLocation,  [-0.25, -0.25, -1]);
-        // setMatrixUniforms();
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
     }
 }
