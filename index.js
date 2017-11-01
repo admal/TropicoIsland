@@ -5,6 +5,7 @@ var app = {
     meshes: [],
     models: [],
     directionalLight: null,
+    pointLight: null,
     gl: null
 };
 
@@ -29,6 +30,8 @@ function initWebGl(meshes) {
     program.matrixUniform = gl.getUniformLocation(program, "u_matrix");
     program.directionalLightDirection = gl.getUniformLocation(program, "u_directionalLightDirection");
     program.directionalLightColor = gl.getUniformLocation(program, "u_directionalLightColor");
+    program.pointLightPosition = gl.getUniformLocation(program, "u_pointLightPosition");
+    program.pointLightColor = gl.getUniformLocation(program, "u_pointLightColor");
 
     //INIT BUFFERS
     var sea = new Plane(mat4.create(), [0,0,1, 1], [1000, 1000]);
@@ -54,7 +57,8 @@ function initWebGl(meshes) {
     }
 
     app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0.8, 0.8, 0.8, 1.0]);
-
+    // app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0, 0, 0, 1.0]);
+    app.pointLight = new PointLight([0, 750, 0], [1,1,0,1]);
     document.getElementById('camera-info').innerHTML = app.camera.toString();
     document.getElementById('sphere-info').innerHTML = app.objects[0].toString();
 
@@ -85,14 +89,47 @@ function drawScene(gl) {
     var tmp = mat4.create();
     mat4.translate(tmp, tmp, [-200, 100,0]);
     drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
+
     tmp = mat4.create();
-    mat4.translate(tmp, tmp, [200, 100,0]);
-    mat4.rotateY(tmp, tmp, radToDeg(60));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'],  tmp, [0.0, 255/255.0, 110/255.0,1]);
+    mat4.translate(tmp, tmp, [-300, 100, 80]);
+    mat4.rotateZ(tmp, tmp, degToRad(-20));
+    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-300, 100,5]);
+    mat4.rotateX(tmp, tmp, degToRad(20));
+    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-350, 100,-30]);
+    mat4.rotateY(tmp, tmp, degToRad(160));
+    mat4.rotateX(tmp, tmp, degToRad(7));
+    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-325, 100, 40]);
+    mat4.rotateY(tmp, tmp, degToRad(40));
+    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
+
+
+    //inna palma
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [350, 100,15]);
+    mat4.rotateY(tmp, tmp, degToRad(60));
+    drawingUtils.drawObject(gl, app, app.models['palm-tree'],  tmp, [2.0/255, 79/255.0, 0.0,1]);
+
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [120,210, 90]);
     mat4.rotateX(tmp,tmp,degToRad(10));
     drawingUtils.drawObject(gl, app, app.models['barrel'],  tmp, [142/255, 80/255.0, 0.0, 1]);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [120, 210, 200]);
+    mat4.scale(tmp,tmp,[50,50,50]);
+    drawingUtils.drawObject(gl, app, app.models['torch'], tmp, [255.0/255, 236.0/255, 99.0/255,1]);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [0, 210, 0]);
+    mat4.rotateY(tmp, tmp, degToRad(180));
+    mat4.scale(tmp,tmp,[40,40,40]);
+    drawingUtils.drawObject(gl, app, app.models['lighthouse'], tmp, [1, 0, 0,1]);
 }
 
 var currentlyPressedKeys = {};
@@ -173,6 +210,7 @@ function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
 
+var frame = 0;
 function animate(deltaTime) {
     if(deltaTime > 0){
         if(cameraMovementRate.forward != 0.0){
@@ -191,6 +229,16 @@ function animate(deltaTime) {
 
         app.camera.rotationX += cameraRotationRate.up * deltaTime;
         app.camera.rotationY += cameraRotationRate.right * deltaTime;
+
+        frame++;
+        if(frame == 60) {
+            frame = 0;
+           if(app.pointLight.color[0] == 0){
+               app.pointLight.color = [0.2,0.2,0.2,1];
+           } else {
+               app.pointLight.color = [0,0,0,1];
+           }
+        }
     }
 }
 var then = 0;
@@ -208,6 +256,8 @@ function tick(now) {
 window.onload = function () {
     OBJ.downloadMeshes({
         'palm-tree': 'models/palm_tree.obj',
-        'barrel': 'models/barrel2.obj'
+        'barrel': 'models/barrel2.obj',
+        'torch': 'models/torch.obj',
+        'lighthouse': 'models/lighthouse.obj'
     }, initWebGl);
 };

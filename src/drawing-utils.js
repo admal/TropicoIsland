@@ -11,6 +11,7 @@ var drawingUtils = {
 
         gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
         app.directionalLight.setUniforms(gl, app.program);
+        app.pointLight.setUniforms(gl, app.program);
         gl.uniform4fv(app.program.colorUniform, color);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.mesh.indexBuffer);

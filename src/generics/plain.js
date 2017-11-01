@@ -72,6 +72,7 @@ function Plane(initialPosition, color, size) {
 
         gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
         app.directionalLight.setUniforms(gl, app.program);
+        app.pointLight.setUniforms(gl, app.program);
         // gl.uniform3fv(app.program.directionalLightDirection, app.directionalLight.getLightVector());
         // gl.uniform4fv(app.program.directionalLightColor, app.directionalLight.color);
         gl.uniform4fv(app.program.colorUniform, this.color);

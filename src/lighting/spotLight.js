@@ -1,3 +1,0 @@
-function SpotLight(position, color) {
-
-}

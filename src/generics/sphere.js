@@ -91,8 +91,8 @@ function Sphere(radius, initialPosition,color) {
 
         gl.uniform4fv(app.program.colorUniform, this.color);
         gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
-        // gl.uniform3fv(app.program.directionalLightDirection, app.directionalLight.getLightVector());
         app.directionalLight.setUniforms(gl, app.program);
+        app.pointLight.setUniforms(gl, app.program);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements(gl.TRIANGLES, this.indexBuffer.numItems, gl.UNSIGNED_SHORT, 0);
