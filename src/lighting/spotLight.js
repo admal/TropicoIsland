@@ -1,0 +1,3 @@
+function SpotLight(position, color) {
+
+}

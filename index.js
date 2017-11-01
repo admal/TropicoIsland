@@ -4,6 +4,7 @@ var app = {
     camera: null,
     meshes: [],
     models: [],
+    directionalLight: null,
     gl: null
 };
 
@@ -24,10 +25,10 @@ function initWebGl(meshes) {
     program.normalAttribute = gl.getAttribLocation(program, 'a_normal');
     gl.enableVertexAttribArray(program.normalAttribute);
 
-
     program.colorUniform = gl.getUniformLocation(program, "u_color");
     program.matrixUniform = gl.getUniformLocation(program, "u_matrix");
-    program.reverseLightDirectionUniform = gl.getUniformLocation(program, "u_lightingDirection");
+    program.directionalLightDirection = gl.getUniformLocation(program, "u_directionalLightDirection");
+    program.directionalLightColor = gl.getUniformLocation(program, "u_directionalLightColor");
 
     //INIT BUFFERS
     var sea = new Plane(mat4.create(), [0,0,1, 1], [1000, 1000]);
@@ -51,6 +52,8 @@ function initWebGl(meshes) {
         app.models[ mesh ] = {};
         app.models[ mesh ].mesh = app.meshes[ mesh ];
     }
+
+    app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0.8, 0.8, 0.8, 1.0]);
 
     document.getElementById('camera-info').innerHTML = app.camera.toString();
     document.getElementById('sphere-info').innerHTML = app.objects[0].toString();

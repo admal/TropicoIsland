@@ -22,13 +22,7 @@ function Camera(aspectRatio) {
         mat4.rotateY(tmp, tmp, degToRad(-this.rotationY));
         mat4.translate(tmp, tmp, [this.xPos, this.yPos, -this.zPos]);
 
-        // var matrix = mat4.create();
-        var cameraMatrix = tmp;
-        var viewMatrix = tmp;//mat4.create();//
-
-        // mat4.invert(viewMatrix, cameraMatrix);
-
-
+        var viewMatrix = tmp;
 
         var zNear = 1;
         var zFar = 4000;

@@ -64,11 +64,6 @@ function Plane(initialPosition, color, size) {
         var m = mat4.create();
         mat4.multiply(m, app.camera.getMatrix(), this.translation);
 
-        var lightingDirection = [-0.25, -0.25, -1];
-        var adjustedLD = vec3.create();
-        vec3.normalize(adjustedLD, lightingDirection);
-        vec3.scale(adjustedLD,adjustedLD, -1);
-
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(app.program.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
@@ -76,7 +71,9 @@ function Plane(initialPosition, color, size) {
         gl.vertexAttribPointer(app.program.normalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
-        gl.uniform3fv(app.program.reverseLightDirectionUniform, adjustedLD);
+        app.directionalLight.setUniforms(gl, app.program);
+        // gl.uniform3fv(app.program.directionalLightDirection, app.directionalLight.getLightVector());
+        // gl.uniform4fv(app.program.directionalLightColor, app.directionalLight.color);
         gl.uniform4fv(app.program.colorUniform, this.color);
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);

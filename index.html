@@ -17,18 +17,18 @@
 
     varying vec4 v_color;
     varying vec3 v_normal;
-    uniform vec3 u_lightingDirection;
+    uniform vec3 u_directionalLightDirection;
+    uniform vec4 u_directionalLightColor;
 
     vec3 ambient = vec3(0.2, 0.2, 0.2);
-    vec3 dirColor = vec3(0.8,0.8,0.8);
 
     varying vec3 v_LightWeighting;
 
     void main() {
         gl_Position =u_matrix * a_position;
 
-        float directionalLightWeighting = max(dot(normalize(a_normal), normalize(u_lightingDirection)), 0.0);
-        v_LightWeighting = ambient + dirColor * directionalLightWeighting;
+        float directionalLightWeighting = max(dot(normalize(a_normal), normalize(u_directionalLightDirection)), 0.0);
+        v_LightWeighting = ambient + vec3(u_directionalLightColor) * directionalLightWeighting;
 
         // Pass the color to the fragment shader.
         v_color = u_color;
@@ -64,6 +64,7 @@
 
 <!-- SOURCES -->
 <script src="src/camera.js"></script>
+<script src="src/lighting/directionalLight.js"></script>
 <script src="src/generics/sphere.js"></script>
 <script src="src/generics/plain.js"></script>
 <script src="src/utils-webgl.js"></script>
