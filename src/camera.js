@@ -72,7 +72,7 @@ function Camera(aspectRatio) {
     this.toString = function () {
         var ret = "<br>Rotation X: " + this.rotationX + " deg";
         ret += "<br>Rotation Y: " + this.rotationY + " deg";
-        ret += "X: " + this.xPos + "; ";
+        ret += "<br>X: " + this.xPos + "; ";
         ret += "Y: " + this.yPos + "; ";
         ret += "Z: " + this.zPos + "; ";
         ret+="<br>" + this.getMatrix();

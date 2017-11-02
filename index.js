@@ -38,7 +38,7 @@ function initWebGl(meshes) {
     mat4.scale(sea.translation, sea.translation, [400, 1, 400]);
     app.objects.push(sea);
 
-    var island = new Sphere(200, [0,-20, 0], [1.0, 0.9, 0.2, 1.0]);
+    var island = new Sphere(200, [0,-20, 0], [1.0, 243/255.0, 178/255.0, 1.0]);
     mat4.scale(island.translation, island.translation, [3, 1.3, 2]);
     app.objects.push(island);
 
@@ -57,10 +57,8 @@ function initWebGl(meshes) {
     }
 
     app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0.8, 0.8, 0.8, 1.0]);
-    // app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0, 0, 0, 1.0]);
-    app.pointLight = new PointLight([0, 750, 0], [1,1,0,1]);
+    app.pointLight = new PointLight([0, 750, 0], [0,0,0,1]);
     document.getElementById('camera-info').innerHTML = app.camera.toString();
-    document.getElementById('sphere-info').innerHTML = app.objects[0].toString();
 
     document.onkeydown = handleKeyDown;
     document.onkeyup = handleKeyUp;
@@ -121,11 +119,6 @@ function drawScene(gl) {
     drawingUtils.drawObject(gl, app, app.models['barrel'],  tmp, [142/255, 80/255.0, 0.0, 1]);
 
     tmp = mat4.create();
-    mat4.translate(tmp, tmp, [120, 210, 200]);
-    mat4.scale(tmp,tmp,[50,50,50]);
-    drawingUtils.drawObject(gl, app, app.models['torch'], tmp, [255.0/255, 236.0/255, 99.0/255,1]);
-
-    tmp = mat4.create();
     mat4.translate(tmp, tmp, [0, 210, 0]);
     mat4.rotateY(tmp, tmp, degToRad(180));
     mat4.scale(tmp,tmp,[40,40,40]);
@@ -133,12 +126,12 @@ function drawScene(gl) {
 }
 
 var currentlyPressedKeys = {};
-var cameraMovementRate = {
+var cameraMovementOffset = {
     forward: 0.0,
     right: 0.0,
     up: 0.0
 };
-var cameraRotationRate = {
+var cameraRotationOffset = {
     up: 0.0,
     right: 0.0
 };
@@ -147,59 +140,58 @@ var movementStep = 8.0;
 function handleKeys() {
     if(currentlyPressedKeys[87]) {
         // console.info('W was pressed');
-        cameraMovementRate.forward += -movementStep;
+        cameraMovementOffset.forward += -movementStep;
     }
     else if(currentlyPressedKeys[83]) {
         // console.info('S was pressed');
-        cameraMovementRate.forward += movementStep;
+        cameraMovementOffset.forward += movementStep;
     } else {
-        cameraMovementRate.forward = 0;
+        cameraMovementOffset.forward = 0;
     }
 
     if(currentlyPressedKeys[33]) {
         // console.info('PageUp was pressed');
-        cameraMovementRate.up += -movementStep;
+        cameraMovementOffset.up += -movementStep;
     }
     else if(currentlyPressedKeys[34]) {
         // console.info('PageDown was pressed');
-        cameraMovementRate.up += movementStep;
+        cameraMovementOffset.up += movementStep;
     } else {
-        cameraMovementRate.up = 0;
+        cameraMovementOffset.up = 0;
     }
 
     if(currentlyPressedKeys[68]) {
         // console.info('D was pressed');
-        cameraMovementRate.right += -movementStep;
+        cameraMovementOffset.right += -movementStep;
     } else if(currentlyPressedKeys[65]) {
         // console.info('A was pressed');
-        cameraMovementRate.right += movementStep;
+        cameraMovementOffset.right += movementStep;
     } else {
-        cameraMovementRate.right = 0;
+        cameraMovementOffset.right = 0;
     }
 
     if(currentlyPressedKeys[38]) {
         // console.info('UP was pressed');
-        cameraRotationRate.up += rotateStep;
+        cameraRotationOffset.up += rotateStep;
     }
     else if(currentlyPressedKeys[40]) {
         // console.info('DOWN was pressed');
-        cameraRotationRate.up += -rotateStep;
+        cameraRotationOffset.up += -rotateStep;
     } else {
-        cameraRotationRate.up = 0;
+        cameraRotationOffset.up = 0;
     }
 
     if(currentlyPressedKeys[39]) {
         // console.info('RIGHT was pressed');
-        cameraRotationRate.right += -rotateStep;
+        cameraRotationOffset.right += -rotateStep;
     } else if(currentlyPressedKeys[37]) {
         // console.info('LEFT was pressed');
-        cameraRotationRate.right += rotateStep;
+        cameraRotationOffset.right += rotateStep;
     } else {
-        cameraRotationRate.right = 0;
+        cameraRotationOffset.right = 0;
     }
 
     document.getElementById('camera-info').innerHTML = app.camera.toString();
-    document.getElementById('sphere-info').innerHTML = app.objects[0].toString();
 }
 
 
@@ -210,29 +202,34 @@ function handleKeyUp(event) {
     currentlyPressedKeys[event.keyCode] = false;
 }
 
-var frame = 0;
+var lastTimeBlink = 0;
+var framesCount = 0;
 function animate(deltaTime) {
     if(deltaTime > 0){
-        if(cameraMovementRate.forward != 0.0){
-            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY)) * cameraMovementRate.forward * deltaTime;
-            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY)) * cameraMovementRate.forward * deltaTime;
-            app.camera.yPos += Math.tan(degToRad(app.camera.rotationX)) * cameraMovementRate.forward * deltaTime;
+        if(cameraMovementOffset.forward != 0.0){
+            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY)) * cameraMovementOffset.forward * deltaTime;
+            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY)) * cameraMovementOffset.forward * deltaTime;
+            app.camera.yPos += Math.tan(degToRad(app.camera.rotationX)) * cameraMovementOffset.forward * deltaTime;
         }
-        if(cameraMovementRate.right != 0.0) {
-            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY - 90)) * cameraMovementRate.right * deltaTime;
-            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY - 90)) * cameraMovementRate.right * deltaTime;
-        }
-
-        if(cameraMovementRate.up != 0.0){
-            app.camera.yPos += cameraMovementRate.up * deltaTime;
+        if(cameraMovementOffset.right != 0.0) {
+            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY - 90)) * cameraMovementOffset.right * deltaTime;
+            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY - 90)) * cameraMovementOffset.right * deltaTime;
         }
 
-        app.camera.rotationX += cameraRotationRate.up * deltaTime;
-        app.camera.rotationY += cameraRotationRate.right * deltaTime;
+        if(cameraMovementOffset.up != 0.0){
+            app.camera.yPos += cameraMovementOffset.up * deltaTime;
+        }
 
-        frame++;
-        if(frame == 60) {
-            frame = 0;
+        app.camera.rotationX += cameraRotationOffset.up * deltaTime;
+        app.camera.rotationY += cameraRotationOffset.right * deltaTime;
+
+        lastTimeBlink += deltaTime;
+        framesCount++;
+
+        if(lastTimeBlink >= 1) {
+            document.getElementById('frames').innerHTML = framesCount;
+            framesCount = 0;
+            lastTimeBlink = 0;
            if(app.pointLight.color[0] == 0){
                app.pointLight.color = [0.2,0.2,0.2,1];
            } else {
@@ -257,7 +254,6 @@ window.onload = function () {
     OBJ.downloadMeshes({
         'palm-tree': 'models/palm_tree.obj',
         'barrel': 'models/barrel2.obj',
-        'torch': 'models/torch.obj',
         'lighthouse': 'models/lighthouse.obj'
     }, initWebGl);
 };
