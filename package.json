@@ -1,0 +1,22 @@
+{
+  "name": "tropicoisland",
+  "version": "1.0.0",
+  "description": "3d project for WUT classes",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/admal/TropicoIsland.git"
+  },
+  "author": "Adam Malewski",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/admal/TropicoIsland/issues"
+  },
+  "homepage": "https://github.com/admal/TropicoIsland#readme",
+  "dependencies": {
+    "babel-cli": "^6.26.0"
+  }
+}

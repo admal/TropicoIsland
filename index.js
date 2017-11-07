@@ -32,32 +32,86 @@ function initWebGl(meshes) {
     program.directionalLightColor = gl.getUniformLocation(program, "u_directionalLightColor");
     program.pointLightPosition = gl.getUniformLocation(program, "u_pointLightPosition");
     program.pointLightColor = gl.getUniformLocation(program, "u_pointLightColor");
+    app.program = program;
 
     //INIT BUFFERS
-    var sea = new Plane(mat4.create(), [0,0,1, 1], [1000, 1000]);
-    mat4.scale(sea.translation, sea.translation, [400, 1, 400]);
+    var tmp = mat4.create();
+    var sea = new Plane(mat4.create(), new RgbColor(0,0,255), [1000, 1000]);
+    mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
     app.objects.push(sea);
 
-    var island = new Sphere(200, [0,-20, 0], [1.0, 243/255.0, 178/255.0, 1.0]);
-    mat4.scale(island.translation, island.translation, [3, 1.3, 2]);
+    mat4.translate(tmp, tmp, [0, -20, 0]);
+    var island = new Sphere(tmp, new RgbColor(255,243,178),200);
+
+    mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
 
+    //init mesh objects
+    var palmTreeColor1 = new RgbColor(0, 142, 42);
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-200, 100,0]);
+    var palmTree1 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
 
-    app.program = program;
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-300, 100, 80]);
+    mat4.rotateZ(tmp, tmp, degToRad(-20));
+    var palmTree2 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-300, 100,5]);
+    mat4.rotateX(tmp, tmp, degToRad(20));
+    var palmTree3 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-350, 100,-30]);
+    mat4.rotateY(tmp, tmp, degToRad(160));
+    mat4.rotateX(tmp, tmp, degToRad(7));
+    var palmTree4 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-300, 100, 80]);
+    mat4.rotateZ(tmp, tmp, degToRad(-20));
+    var palmTree5 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-325, 100, 40]);
+    mat4.rotateY(tmp, tmp, degToRad(40));
+    var palmTree6 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [350, 100,15]);
+    mat4.rotateY(tmp, tmp, degToRad(60));
+    var otherPalmTree = new MeshObject(tmp, new RgbColor(2, 79, 0), meshes['palm-tree']);
+
+    //inna palma
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [120,210, 90]);
+    mat4.rotateX(tmp,tmp,degToRad(10));
+    var barrel = new MeshObject(tmp, new RgbColor(142,80,0),meshes['barrel']);
+
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [0, 210, 0]);
+    mat4.rotateY(tmp, tmp, degToRad(180));
+    mat4.scale(tmp,tmp,[40,40,40]);
+    var lighthouse = new MeshObject(tmp, new RgbColor(255,0,0), meshes['lighthouse']);
+
+
+
+    app.objects.push(palmTree1);
+    app.objects.push(palmTree2);
+    app.objects.push(palmTree3);
+    app.objects.push(palmTree4);
+    app.objects.push(palmTree5);
+    app.objects.push(palmTree6);
+    app.objects.push(otherPalmTree);
+    app.objects.push(barrel);
+    app.objects.push(lighthouse);
+    //end
 
     app.objects.forEach(function (t) { t.initBuffers(gl);  });
 
-    app.meshes = meshes;
-    for(var mesh in app.meshes ){
-        OBJ.initMeshBuffers( gl, app.meshes[ mesh ]);
-        // this loops through the mesh names and creates new
-        // model objects and setting their mesh to the current mesh
-        app.models[ mesh ] = {};
-        app.models[ mesh ].mesh = app.meshes[ mesh ];
-    }
-
-    app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], [0.8, 0.8, 0.8, 1.0]);
-    app.pointLight = new PointLight([0, 750, 0], [0,0,0,1]);
+    app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], new RgbColor(204, 204, 204));
+    app.pointLight = new PointLight([0, 750, 0],  new RgbColor(0, 0, 0));
     document.getElementById('camera-info').innerHTML = app.camera.toString();
 
     document.onkeydown = handleKeyDown;
@@ -84,45 +138,7 @@ function drawScene(gl) {
         t.draw(gl, app);
     });
 
-    var tmp = mat4.create();
-    mat4.translate(tmp, tmp, [-200, 100,0]);
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
 
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [-300, 100, 80]);
-    mat4.rotateZ(tmp, tmp, degToRad(-20));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [-300, 100,5]);
-    mat4.rotateX(tmp, tmp, degToRad(20));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [-350, 100,-30]);
-    mat4.rotateY(tmp, tmp, degToRad(160));
-    mat4.rotateX(tmp, tmp, degToRad(7));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [-325, 100, 40]);
-    mat4.rotateY(tmp, tmp, degToRad(40));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'], tmp, [0.0, 142/255.0, 42/255.0,1]);
-
-
-    //inna palma
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [350, 100,15]);
-    mat4.rotateY(tmp, tmp, degToRad(60));
-    drawingUtils.drawObject(gl, app, app.models['palm-tree'],  tmp, [2.0/255, 79/255.0, 0.0,1]);
-
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [120,210, 90]);
-    mat4.rotateX(tmp,tmp,degToRad(10));
-    drawingUtils.drawObject(gl, app, app.models['barrel'],  tmp, [142/255, 80/255.0, 0.0, 1]);
-
-    tmp = mat4.create();
-    mat4.translate(tmp, tmp, [0, 210, 0]);
-    mat4.rotateY(tmp, tmp, degToRad(180));
-    mat4.scale(tmp,tmp,[40,40,40]);
-    drawingUtils.drawObject(gl, app, app.models['lighthouse'], tmp, [1, 0, 0,1]);
 }
 
 var currentlyPressedKeys = {};
@@ -230,10 +246,10 @@ function animate(deltaTime) {
             document.getElementById('frames').innerHTML = framesCount;
             framesCount = 0;
             lastTimeBlink = 0;
-           if(app.pointLight.color[0] == 0){
-               app.pointLight.color = [0.2,0.2,0.2,1];
+           if(app.pointLight.color.r == 0){
+               app.pointLight.color = new RgbColor(51,51,51);
            } else {
-               app.pointLight.color = [0,0,0,1];
+               app.pointLight.color = new RgbColor(0,0,0);
            }
         }
     }

@@ -1,16 +1,19 @@
-function Camera(aspectRatio) {
-    this.rotation = mat4.create();
-    this.translation = mat4.create();
-    this.aspectRatio = aspectRatio;
+class Camera {
+    constructor(aspectRatio){
+        this.aspectRatio = aspectRatio;
+        this.rotation = mat4.create();
+        this.transformationMatrix = mat4.create();
+        this.aspectRatio = aspectRatio;
 
-    this.rotationX = 0.0;
-    this.rotationY = 0.0;
+        this.rotationX = 0.0;
+        this.rotationY = 0.0;
 
-    this.xPos = 0.0;
-    this.yPos = -200.0;
-    this.zPos = 1000.0;
+        this.xPos = 0.0;
+        this.yPos = -200.0;
+        this.zPos = 1000.0;
+    }
 
-    this.getMatrix = function () {
+    getMatrix() {
         if (this.rotationX >= 360 || this.rotationX <= -360)
             this.rotationX = 0;
 
@@ -33,43 +36,43 @@ function Camera(aspectRatio) {
         mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
         return viewProjectionMatrix;
-    };
+    }
 
-    this.rotateX = function (deg) {
+    rotateX(deg) {
         this.rotationX += deg;
 
         if (this.rotationX >= 360 || this.rotationX <= -360)
             this.rotationX = 0;
 
         mat4.rotateX(this.rotation, this.rotation, degToRad(deg));
-    };
+    }
 
-    this.rotateY = function (deg) {
+    rotateY(deg) {
          this.rotationY += deg;
 
          if (this.rotationY >= 360 || this.rotationY <= -360)
              this.rotationY = 0;
 
         mat4.rotateY(this.rotation, this.rotation, degToRad(deg));
-    };
+    }
 
-    this.moveForward = function (step) {
+    moveForward(step) {
         // this.xPos -= Math.sin(degToRad(this.rotationX)) * step;
         // this.zPos -= Math.cos(degToRad(this.rotationX)) * step;
         //
         // mat4.translate(this.translation, this.translation, [-this.xPos,0, -this.zPos]);
         this.zPos -= step;
-        mat4.translate(this.translation, this.translation, [0,0,-step]);
-    };
+        mat4.translate(this.transformationMatrix, this.transformationMatrix, [0,0,-step]);
+    }
 
-    this.moveRight = function (step) {
+    moveRight(step) {
         this.yPos -= step;
         // mat4.translate(this.translation, this.translation, [-this.yPos,0,0]);
-        mat4.translate(this.translation, this.translation, [step,0,0]);
+        mat4.translate(this.transformationMatrix, this.transformationMatrix, [step,0,0]);
 
-    };
+    }
 
-    this.toString = function () {
+    toString() {
         var ret = "<br>Rotation X: " + this.rotationX + " deg";
         ret += "<br>Rotation Y: " + this.rotationY + " deg";
         ret += "<br>X: " + this.xPos + "; ";
