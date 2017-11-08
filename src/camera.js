@@ -5,8 +5,8 @@ class Camera {
         this.transformationMatrix = mat4.create();
         this.aspectRatio = aspectRatio;
 
-        this.rotationX = 0.0;
-        this.rotationY = 0.0;
+        this.rotationX = 0.0; //in degrees
+        this.rotationY = 0.0; //in degrees
 
         this.xPos = 0.0;
         this.yPos = -200.0;
@@ -38,38 +38,15 @@ class Camera {
         return viewProjectionMatrix;
     }
 
-    rotateX(deg) {
-        this.rotationX += deg;
-
-        if (this.rotationX >= 360 || this.rotationX <= -360)
-            this.rotationX = 0;
-
-        mat4.rotateX(this.rotation, this.rotation, degToRad(deg));
-    }
-
-    rotateY(deg) {
-         this.rotationY += deg;
-
-         if (this.rotationY >= 360 || this.rotationY <= -360)
-             this.rotationY = 0;
-
-        mat4.rotateY(this.rotation, this.rotation, degToRad(deg));
-    }
-
     moveForward(step) {
-        // this.xPos -= Math.sin(degToRad(this.rotationX)) * step;
-        // this.zPos -= Math.cos(degToRad(this.rotationX)) * step;
-        //
-        // mat4.translate(this.translation, this.translation, [-this.xPos,0, -this.zPos]);
-        this.zPos -= step;
-        mat4.translate(this.transformationMatrix, this.transformationMatrix, [0,0,-step]);
+        this.xPos -= Math.sin(degToRad(this.rotationY)) * step;
+        this.zPos += Math.cos(degToRad(this.rotationY)) * step;
+        this.yPos += Math.tan(degToRad(this.rotationX)) * step;
     }
 
     moveRight(step) {
-        this.yPos -= step;
-        // mat4.translate(this.translation, this.translation, [-this.yPos,0,0]);
-        mat4.translate(this.transformationMatrix, this.transformationMatrix, [step,0,0]);
-
+        this.xPos -= Math.sin(degToRad(this.rotationY - 90)) * step;
+        this.zPos += Math.cos(degToRad(this.rotationY - 90)) * step;
     }
 
     toString() {

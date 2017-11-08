@@ -223,13 +223,10 @@ var framesCount = 0;
 function animate(deltaTime) {
     if(deltaTime > 0){
         if(cameraMovementOffset.forward != 0.0){
-            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY)) * cameraMovementOffset.forward * deltaTime;
-            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY)) * cameraMovementOffset.forward * deltaTime;
-            app.camera.yPos += Math.tan(degToRad(app.camera.rotationX)) * cameraMovementOffset.forward * deltaTime;
+            app.camera.moveForward(cameraMovementOffset.forward * deltaTime);
         }
         if(cameraMovementOffset.right != 0.0) {
-            app.camera.xPos -= Math.sin(degToRad(app.camera.rotationY - 90)) * cameraMovementOffset.right * deltaTime;
-            app.camera.zPos += Math.cos(degToRad(app.camera.rotationY - 90)) * cameraMovementOffset.right * deltaTime;
+            app.camera.moveRight(cameraMovementOffset.right * deltaTime);
         }
 
         if(cameraMovementOffset.up != 0.0){
