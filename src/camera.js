@@ -9,8 +9,8 @@ class Camera {
         this.rotationY = 0.0; //in degrees
 
         this.xPos = 0.0;
-        this.yPos = -200.0;
-        this.zPos = 1000.0;
+        this.yPos = -100.0;
+        this.zPos = -650.0;
     }
 
     getMatrix() {
@@ -20,22 +20,57 @@ class Camera {
         if (this.rotationY >= 360 || this.rotationY <= -360)
             this.rotationY = 0;
 
-        var tmp = mat4.create();
-        mat4.rotateX(tmp, tmp, degToRad(-this.rotationX));
-        mat4.rotateY(tmp, tmp, degToRad(-this.rotationY));
-        mat4.translate(tmp, tmp, [this.xPos, this.yPos, -this.zPos]);
-
-        var viewMatrix = tmp;
+        // var tmp = mat4.create();
+        // mat4.rotateX(tmp, tmp, degToRad(-this.rotationX));
+        // mat4.rotateY(tmp, tmp, degToRad(-this.rotationY));
+        // mat4.translate(tmp, tmp, [this.xPos, this.yPos, -this.zPos]);
+        //
+        // var viewMatrix = tmp;
+        //
+        // var zNear = 1;
+        // var zFar = 4000;
+        // var fieldOfViewRadians = degToRad(60);
+        // var projectionMatrix = mat4.create();
+        // mat4.perspective(projectionMatrix, fieldOfViewRadians, this.aspectRatio, zNear, zFar);
+        // var viewProjectionMatrix = mat4.create();
+        // mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
+        //
+        // return viewProjectionMatrix;
+        /////////////////////////////////
 
         var zNear = 1;
         var zFar = 4000;
         var fieldOfViewRadians = degToRad(60);
         var projectionMatrix = mat4.create();
         mat4.perspective(projectionMatrix, fieldOfViewRadians, this.aspectRatio, zNear, zFar);
+
+        var cameraMatrix = mat4.create();
+        mat4.rotateX(cameraMatrix, cameraMatrix, degToRad(this.rotationX));
+        mat4.rotateY(cameraMatrix, cameraMatrix, degToRad(this.rotationY));
+        mat4.translate(cameraMatrix, cameraMatrix, [this.xPos, this.yPos, this.zPos]);
+
+        var viewMatrix = cameraMatrix;// mat4.create();
+        // mat4.invert(viewMatrix, cameraMatrix);
+
         var viewProjectionMatrix = mat4.create();
         mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
 
-        return viewProjectionMatrix;
+        var worldMatrix = mat4.create();
+
+        var worldViewProjectionMatrix = mat4.create();
+        mat4.multiply(worldViewProjectionMatrix, viewProjectionMatrix, worldMatrix);
+        var worldInverseMatrix = mat4.create();
+        mat4.invert(worldInverseMatrix, worldMatrix);
+        var worldInverseTransposeMatrix = mat4.create();
+        mat4.transpose(worldInverseTransposeMatrix, worldInverseMatrix);
+
+        return {
+            cameraMatrix: cameraMatrix,
+            worldMatrix: worldMatrix,
+            worldViewProjectionMatrix: worldViewProjectionMatrix,
+            worldInverseTransposeMatrix: worldInverseTransposeMatrix,
+            viewProjectionMatrix: viewProjectionMatrix
+        };
     }
 
     moveForward(step) {
