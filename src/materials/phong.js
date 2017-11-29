@@ -7,11 +7,13 @@ class PhongMaterial {
     }
 
     setUniforms(gl, program, camera) {
-        gl.uniformfv(program.diffuseUniform, this.diffuse);
-        gl.uniformfv(program.specularUniform, this.specular);
-        gl.uniformfv(program.reflectivityUniform, this.reflectivity);
-        var translation = vec3.create();
-        mat4.getTranslation(translation,  camera.getMatrix());
-        gl.uniform4fv(program.cameraUniform, translation);
+        gl.uniform1f(program.diffuseUniform, this.diffuse);
+        gl.uniform1f(program.specularUniform, this.specular);
+        gl.uniform1f(program.reflectivityUniform, this.reflectivity);
+        var translation = mat4.create();
+        mat4.invert(translation, camera.getMatrix());
+        var rotation = vec3.create();
+        mat4.getRotation(rotation, translation);
+        gl.uniform4fv(program.cameraInversedUniform, rotation);
     }
 }

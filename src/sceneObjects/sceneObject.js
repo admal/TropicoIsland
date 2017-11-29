@@ -1,10 +1,16 @@
 class  SceneObject {
-    constructor(initialTransformation,color){
+    constructor(initialTransformation, color, material){
         this.transformationMatrix = initialTransformation;
         this.color = color;
         this.normalData = [];
         this.vertexPositions = [];
         this.indexData = [];
+        this.textureData = [];
+        this.usesTexture = false;
+        this.material = material;
+
+        this.texture = null;
+
         if (new.target === SceneObject) {
             throw new TypeError("Cannot construct Abstract instances directly");
         }
@@ -36,14 +42,48 @@ class  SceneObject {
         indexBuffer.numItems = this.indexData.length;
 
 
+        var textureBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+
+        if(this.usesTexture == false) {
+            this.textureData = new Array(this.indexData.length * 2);
+        }
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureData), gl.STATIC_DRAW);
+        textureBuffer.itemSize = 2;
+        textureBuffer.numItems = this.textureData.length / 2;
+
+        this.textureBuffer = textureBuffer;
         this.normalBuffer = normalBuffer;
         this.vertexBuffer = vertexBuffer;
         this.indexBuffer = indexBuffer;
+
+        this.initTexture();
+
+    }
+
+    initTexture(){
+
+
     }
 
     draw(gl, app) {
-        var m = mat4.create();
-        mat4.multiply(m, app.camera.getMatrix(), this.transformationMatrix);
+        // var m = mat4.create();
+        var cameraRet = app.camera.getMatrix();
+        // var worldViewProjectionMatrix = cameraRet.worldViewProjectionMatrix;
+        // var worldInverseTransposeMatrix = cameraRet.worldInverseTransposeMatrix;
+        var worldMatrix = cameraRet.worldMatrix;
+
+        mat4.multiply(worldMatrix, worldMatrix, this.transformationMatrix);
+
+        var viewProjectionMatrix = cameraRet.viewProjectionMatrix;
+
+        var worldViewProjectionMatrix = mat4.create();
+        mat4.multiply(worldViewProjectionMatrix, viewProjectionMatrix, worldMatrix);
+        var worldInverseMatrix = mat4.create();
+        mat4.invert(worldInverseMatrix, worldMatrix);
+        var worldInverseTransposeMatrix = mat4.create();
+        mat4.transpose(worldInverseTransposeMatrix, worldInverseMatrix);
+
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.vertexBuffer);
         gl.vertexAttribPointer(app.program.vertexPositionAttribute, this.vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -51,9 +91,19 @@ class  SceneObject {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.vertexAttribPointer(app.program.normalAttribute, this.normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-        gl.uniformMatrix4fv(app.program.matrixUniform, false, m);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.textureBuffer);
+        gl.vertexAttribPointer(app.program.textureAttributem, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        var usesTexture = this.usesTexture ? 1 : 0;
+        gl.uniform1i(app.program.usesTexture, usesTexture);
+        gl.uniform1i(app.program.textureSampler, 0);
+
+
+        gl.uniformMatrix4fv(app.program.matrixUniform, false, worldViewProjectionMatrix);
+        gl.uniformMatrix4fv(app.program.inversedTransposedWorldMatrix, false, worldInverseTransposeMatrix);
         app.directionalLight.setUniforms(gl, app.program);
         app.pointLight.setUniforms(gl, app.program);
+        this.material.setUniforms(gl, app.program, app.camera);
         // gl.uniform3fv(app.program.directionalLightDirection, app.directionalLight.getLightVector());
         // gl.uniform4fv(app.program.directionalLightColor, app.directionalLight.color);
         gl.uniform4fv(app.program.colorUniform, this.color.getColorVector());

@@ -1,10 +1,9 @@
 class Plane extends SceneObject {
 
-    constructor(initialPosition, color, size) {
-        super(initialPosition, color);
+    constructor(initialPosition, color, size, material) {
+        super(initialPosition, color, material);
         this.color = color;
         this.size = size;
-        this.initialPosition = initialPosition;
     }
 
     _initData() {

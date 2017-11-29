@@ -1,6 +1,6 @@
 class Sphere extends SceneObject {
-    constructor(initialPosition, color, radius){
-        super(initialPosition, color);
+    constructor(initialPosition, color, radius, material){
+        super(initialPosition, color, material);
         this.radius = radius;
     }
 
