@@ -1,7 +1,6 @@
 class Camera {
     constructor(aspectRatio){
         this.aspectRatio = aspectRatio;
-        this.rotation = mat4.create();
         this.transformationMatrix = mat4.create();
         this.aspectRatio = aspectRatio;
 
@@ -19,24 +18,6 @@ class Camera {
 
         if (this.rotationY >= 360 || this.rotationY <= -360)
             this.rotationY = 0;
-
-        // var tmp = mat4.create();
-        // mat4.rotateX(tmp, tmp, degToRad(-this.rotationX));
-        // mat4.rotateY(tmp, tmp, degToRad(-this.rotationY));
-        // mat4.translate(tmp, tmp, [this.xPos, this.yPos, -this.zPos]);
-        //
-        // var viewMatrix = tmp;
-        //
-        // var zNear = 1;
-        // var zFar = 4000;
-        // var fieldOfViewRadians = degToRad(60);
-        // var projectionMatrix = mat4.create();
-        // mat4.perspective(projectionMatrix, fieldOfViewRadians, this.aspectRatio, zNear, zFar);
-        // var viewProjectionMatrix = mat4.create();
-        // mat4.multiply(viewProjectionMatrix, projectionMatrix, viewMatrix);
-        //
-        // return viewProjectionMatrix;
-        /////////////////////////////////
 
         var zNear = 1;
         var zFar = 4000;
@@ -90,7 +71,6 @@ class Camera {
         ret += "<br>X: " + this.xPos + "; ";
         ret += "Y: " + this.yPos + "; ";
         ret += "Z: " + this.zPos + "; ";
-        ret+="<br>" + this.getMatrix();
         return ret;
     }
 

@@ -10,6 +10,7 @@ class  SceneObject {
         this.material = material;
 
         this.texture = null;
+        this.glTexture = null;
 
         if (new.target === SceneObject) {
             throw new TypeError("Cannot construct Abstract instances directly");
@@ -95,6 +96,12 @@ class  SceneObject {
         gl.vertexAttribPointer(app.program.textureAttributem, this.textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         var usesTexture = this.usesTexture ? 1 : 0;
+
+        if(this.usesTexture) {
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
+        }
+
         gl.uniform1i(app.program.usesTexture, usesTexture);
         gl.uniform1i(app.program.textureSampler, 0);
 

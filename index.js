@@ -1,3 +1,37 @@
+var textureUrls = ["models/barrelS_D.jpg", "models/lighthouse_texture.bmp"];
+
+function loadTextures(meshes, callback) {
+    var textures = [];
+    var imagesToLoad = textureUrls.length;
+
+    var onImageLoad = function () {
+        --imagesToLoad;
+        if(imagesToLoad == 0) {
+            callback(meshes, textures);
+        }
+    };
+
+    for(var i = 0; i < textureUrls.length; i++){
+        var image = new Image();
+        image.src = textureUrls[i];
+        image.onload = onImageLoad;
+
+        textures.push(new Texture(image.src, image));
+    }
+}
+
+window.onload = function () {
+    OBJ.downloadMeshes({
+            'palm-tree': 'models/palm_tree.obj',
+            'barrel': 'models/barrel.obj',
+            'lighthouse': 'models/lighthouse.obj'
+        }, function (meshes) {
+            loadTextures(meshes, initWebGl);
+        }
+    );
+};
+
+
 var app = {
     program: null,
     objects: [],
@@ -50,70 +84,80 @@ function initWebGl(meshes, textures) {
     var sea = new Plane(mat4.create(), new RgbColor(0,0,255), [1000, 1000], materialTmp);
     mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
     app.objects.push(sea);
+    // sea.initBuffers(gl);
 
     mat4.translate(tmp, tmp, [0, -20, 0]);
     var island = new Sphere(tmp, new RgbColor(255,243,178),200, materialTmp);
-
     mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
+    // island.initBuffers(gl);
 
     //init mesh objects
+    //beczka
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [120,210, 90]);
+    mat4.rotateX(tmp,tmp,degToRad(10));
+    var barrel = new MeshObject(tmp, new RgbColor(142,80,0),meshes['barrel'], materialTmp, textures[0]);
+    app.objects.push(barrel);
+    // barrel.initBuffers(gl);
+
     var palmTreeColor1 = new RgbColor(0, 142, 42);
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-200, 100,0]);
     var palmTree1 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree1.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100, 80]);
     mat4.rotateZ(tmp, tmp, degToRad(-20));
     var palmTree2 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree2.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100,5]);
     mat4.rotateX(tmp, tmp, degToRad(20));
     var palmTree3 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree3.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-350, 100,-30]);
     mat4.rotateY(tmp, tmp, degToRad(160));
     mat4.rotateX(tmp, tmp, degToRad(7));
     var palmTree4 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree4.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100, 80]);
     mat4.rotateZ(tmp, tmp, degToRad(-20));
     var palmTree5 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree5.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-325, 100, 40]);
     mat4.rotateY(tmp, tmp, degToRad(40));
     var palmTree6 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
+    // palmTree6.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [350, 100,15]);
     mat4.rotateY(tmp, tmp, degToRad(60));
     var otherPalmTree = new MeshObject(tmp, new RgbColor(2, 79, 0), meshes['palm-tree'], materialTmp, null);
+    // otherPalmTree.initBuffers(gl);
 
-    //beczka
-    tmp = mat4.create();
-    // mat4.translate(tmp, tmp, [120,210, 90]);
-    // mat4.rotateX(tmp,tmp,degToRad(10));
-    var barrel = new MeshObject(tmp, new RgbColor(142,80,0),meshes['barrel'], materialTmp, textures[0]);
-    app.objects.push(barrel);
+
     //
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [0, 210, 0]);
     mat4.rotateY(tmp, tmp, degToRad(180));
     mat4.scale(tmp,tmp,[40,40,40]);
     var lighthouse = new MeshObject(tmp, new RgbColor(255,0,0), meshes['lighthouse'], materialTmp, textures[1]);
+    // lighthouse.initBuffers(gl);
+
     app.objects.push(lighthouse);
-
-
-
     app.objects.push(palmTree1);
-    // app.objects.push(palmTree2);
-    // app.objects.push(palmTree3);
-    // app.objects.push(palmTree4);
+    app.objects.push(palmTree2);
+    app.objects.push(palmTree3);
+    app.objects.push(palmTree4);
     app.objects.push(palmTree5);
     app.objects.push(palmTree6);
     app.objects.push(otherPalmTree);
@@ -273,38 +317,3 @@ function tick(now) {
     drawScene(app.gl);
     animate(deltaTime);
 }
-
-
-textureUrls = ["models/barrelS_D.jpg", "models/lighthouse_texture.bmp"];
-
-function loadTextures(meshes, callback) {
-    var textures = [];
-    var imagesToLoad = textureUrls.length;
-
-    var onImageLoad = function () {
-        --imagesToLoad;
-        if(imagesToLoad == 0) {
-            callback(meshes, textures);
-        }
-    };
-
-    for(var i = 0; i < textureUrls.length; i++){
-        var image = new Image();
-        image.src = textureUrls[i];
-        image.onload = onImageLoad;
-
-        textures.push(new Texture(image.src, image));
-    }
-
-}
-
-window.onload = function () {
-    OBJ.downloadMeshes({
-        'palm-tree': 'models/palm_tree.obj',
-        'barrel': 'models/barrel.obj',
-        'lighthouse': 'models/lighthouse.obj'
-    }, function (meshes) {
-            loadTextures(meshes,initWebGl)
-        }
-    );
-};
