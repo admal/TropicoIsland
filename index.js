@@ -69,6 +69,7 @@ function initWebGl(meshes, textures) {
     program.pointLightPosition = gl.getUniformLocation(program, "u_pointLightPosition");
     program.pointLightColor = gl.getUniformLocation(program, "u_pointLightColor");
     program.usesTexture = gl.getUniformLocation(program, "u_usesTexture");
+    program.usesHeightTexture = gl.getUniformLocation(program, "u_usesHeightTexture");
     program.textureSampler = gl.getUniformLocation(program, "u_sampler");
     program.inversedTransposedWorldMatrix = gl.getUniformLocation(program, "u_worldInverseTranspose");
 
@@ -86,8 +87,10 @@ function initWebGl(meshes, textures) {
     app.objects.push(sea);
     // sea.initBuffers(gl);
 
+    var terrainTexture = new PerlinNoiseTexture(100);
+    terrainTexture.generateTexture();
     mat4.translate(tmp, tmp, [0, -20, 0]);
-    var island = new Sphere(tmp, new RgbColor(255,243,178),200, materialTmp);
+    var island = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp, terrainTexture);
     mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
     // island.initBuffers(gl);
@@ -206,58 +209,58 @@ var cameraRotationOffset = {
     up: 0.0,
     right: 0.0
 };
-var rotateStep = 10.0;
-var movementStep = 8.0;
+var rotateStep = 100.0;
+var movementStep = 250.0;
 function handleKeys() {
     if(currentlyPressedKeys[87]) {
         // console.info('W was pressed');
-        cameraMovementOffset.forward += movementStep;
+        cameraMovementOffset.forward = movementStep;
     }
     else if(currentlyPressedKeys[83]) {
         // console.info('S was pressed');
-        cameraMovementOffset.forward += -movementStep;
+        cameraMovementOffset.forward = -movementStep;
     } else {
         cameraMovementOffset.forward = 0;
     }
 
     if(currentlyPressedKeys[33]) {
         // console.info('PageUp was pressed');
-        cameraMovementOffset.up += -movementStep;
+        cameraMovementOffset.up = -movementStep;
     }
     else if(currentlyPressedKeys[34]) {
         // console.info('PageDown was pressed');
-        cameraMovementOffset.up += movementStep;
+        cameraMovementOffset.up = movementStep;
     } else {
         cameraMovementOffset.up = 0;
     }
 
     if(currentlyPressedKeys[68]) {
         // console.info('D was pressed');
-        cameraMovementOffset.right += -movementStep;
+        cameraMovementOffset.right = -movementStep;
     } else if(currentlyPressedKeys[65]) {
         // console.info('A was pressed');
-        cameraMovementOffset.right += movementStep;
+        cameraMovementOffset.right = movementStep;
     } else {
         cameraMovementOffset.right = 0;
     }
 
     if(currentlyPressedKeys[38]) {
         // console.info('UP was pressed');
-        cameraRotationOffset.up += -rotateStep;
+        cameraRotationOffset.up = -rotateStep;
     }
     else if(currentlyPressedKeys[40]) {
         // console.info('DOWN was pressed');
-        cameraRotationOffset.up += +rotateStep;
+        cameraRotationOffset.up = rotateStep;
     } else {
         cameraRotationOffset.up = 0;
     }
 
     if(currentlyPressedKeys[39]) {
         // console.info('RIGHT was pressed');
-        cameraRotationOffset.right += rotateStep;
+        cameraRotationOffset.right = rotateStep;
     } else if(currentlyPressedKeys[37]) {
         // console.info('LEFT was pressed');
-        cameraRotationOffset.right += -rotateStep;
+        cameraRotationOffset.right = -rotateStep;
     } else {
         cameraRotationOffset.right = 0;
     }
@@ -299,8 +302,8 @@ function animate(deltaTime) {
             framesCount = 0;
             lastTimeBlink = 0;
            if(app.pointLight.color.r == 0){
-               // app.pointLight.color = new RgbColor(51,51,51);
-               app.pointLight.color = new RgbColor(0,0,0);
+               app.pointLight.color = new RgbColor(31,31,31);
+               // app.pointLight.color = new RgbColor(0,0,0);
            } else {
                app.pointLight.color = new RgbColor(0,0,0);
            }

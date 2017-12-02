@@ -23,15 +23,27 @@
     uniform vec4 u_directionalLightColor;
     uniform vec3 u_pointLightPosition;
     uniform vec4 u_pointLightColor;
+    uniform int u_usesHeightTexture;
 
+    uniform sampler2D u_sampler;
 
     vec3 ambient = vec3(0.2, 0.2, 0.2);
 
     varying vec3 v_LightWeighting;
 
     void main() {
+        if(u_usesHeightTexture == 1) {
+            vec2 flipped_texcoord = vec2(a_texture.x, 1.0 - a_texture.y);
 
-        gl_Position =u_matrix * a_position;
+            float displacement = 2.0 * texture2D(u_sampler, flipped_texcoord).x - 1.0;
+
+            vec4 v = vec4(a_position);
+            v.y =  v.y + displacement * 5.0;
+            gl_Position = u_matrix * v;
+
+        } else {
+            gl_Position =u_matrix * a_position;
+        }
 
         vec3 proper_normal = mat3(u_worldInverseTranspose) * normalize(a_normal);
         float directionalLightWeighting = max(dot(normalize(proper_normal), normalize(u_directionalLightDirection)), 0.0);
@@ -57,6 +69,7 @@
 
     uniform sampler2D u_sampler;
     uniform int u_usesTexture;
+
     void main() {
         if(u_usesTexture == 0) {
             gl_FragColor = vec4(vec3(v_color) * v_LightWeighting, 1.0);
@@ -82,6 +95,7 @@
 
 <script src="src/core/rgbColor.js"></script>
 <script src="src/core/texture.js"></script>
+<script src="src/core/perlinTexture.js"></script>
 <script src="src/sceneObjects/sceneObject.js"></script>
 <!-- LIBRARIES -->
 <script src="lib/gl-matrix.js"></script>
