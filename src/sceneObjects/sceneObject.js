@@ -9,7 +9,7 @@ class  SceneObject {
         this.usesTexture = false;
         this.usesHeightTexture = false;
         this.material = material;
-
+        this.usesLighting = true;
         this.texture = null;
         this.glTexture = null;
 
@@ -47,7 +47,7 @@ class  SceneObject {
         var textureBuffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
 
-        if(this.usesTexture == false && this.usesHeightTexture == false) {
+        if(this.usesTexture === false && this.usesHeightTexture === false) {
             this.textureData = new Array(this.indexData.length * 2);
             gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(this.textureData), gl.STATIC_DRAW);
             textureBuffer.itemSize = 2;
@@ -91,6 +91,7 @@ class  SceneObject {
 
         var usesTexture = this.usesTexture ? 1 : 0;
         var usesHeightTexture = this.usesHeightTexture ? 1 : 0;
+        var usesLighting = this.usesLighting ? 1 : 0;
 
         if(this.usesTexture || this.usesHeightTexture) {
             gl.activeTexture(gl.TEXTURE0);
@@ -99,6 +100,7 @@ class  SceneObject {
 
         gl.uniform1i(app.program.usesTexture, usesTexture);
         gl.uniform1i(app.program.usesHeightTexture, usesHeightTexture);
+        gl.uniform1i(app.program.usesLighting, usesLighting);
         gl.uniform1i(app.program.textureSampler, 0);
 
 

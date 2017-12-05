@@ -20,7 +20,7 @@ class Camera {
             this.rotationY = 0;
 
         var zNear = 1;
-        var zFar = 4000;
+        var zFar = 5000;
         var fieldOfViewRadians = degToRad(60);
         var projectionMatrix = mat4.create();
         mat4.perspective(projectionMatrix, fieldOfViewRadians, this.aspectRatio, zNear, zFar);

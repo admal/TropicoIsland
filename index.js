@@ -1,4 +1,4 @@
-var textureUrls = ["models/barrelS_D.jpg", "models/lighthouse_texture.bmp"];
+var textureUrls = ["models/barrelS_D2.jpg", "models/lighthouse_texture.bmp", "models/Sky019.jpg", "models/crate_1.jpg"];
 
 function loadTextures(meshes, callback) {
     var textures = [];
@@ -24,7 +24,8 @@ window.onload = function () {
     OBJ.downloadMeshes({
             'palm-tree': 'models/palm_tree.obj',
             'barrel': 'models/barrel.obj',
-            'lighthouse': 'models/lighthouse.obj'
+            'lighthouse': 'models/lighthouse.obj',
+            'crate': 'models/Crate1.obj'
         }, function (meshes) {
             loadTextures(meshes, initWebGl);
         }
@@ -66,6 +67,7 @@ function initWebGl(meshes, textures) {
     program.matrixUniform = gl.getUniformLocation(program, "u_matrix");
     program.directionalLightDirection = gl.getUniformLocation(program, "u_directionalLightDirection");
     program.directionalLightColor = gl.getUniformLocation(program, "u_directionalLightColor");
+    program.usesLighting = gl.getUniformLocation(program, "u_usesLighting");
     program.pointLightPosition = gl.getUniformLocation(program, "u_pointLightPosition");
     program.pointLightColor = gl.getUniformLocation(program, "u_pointLightColor");
     program.usesTexture = gl.getUniformLocation(program, "u_usesTexture");
@@ -81,11 +83,15 @@ function initWebGl(meshes, textures) {
 
     //INIT BUFFERS
     var materialTmp = new PhongMaterial(new RgbColor(255, 0,0),0.5,0.5, 5);
+    tmp = mat4.create();
+    var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), 200, materialTmp, textures[2]);
+    mat4.translate(skydome.transformationMatrix, skydome.transformationMatrix, [app.camera.xPos, app.camera.yPos, app.camera.zPos])
+    app.objects.push(skydome);
+
     var tmp = mat4.create();
     var sea = new Plane(mat4.create(), new RgbColor(0,0,255), [1000, 1000], materialTmp);
     mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
     app.objects.push(sea);
-    // sea.initBuffers(gl);
 
     var terrainTexture = new PerlinNoiseTexture(100);
     terrainTexture.generateTexture();
@@ -93,7 +99,6 @@ function initWebGl(meshes, textures) {
     var island = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp, terrainTexture);
     mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
-    // island.initBuffers(gl);
 
     //init mesh objects
     //beczka
@@ -102,59 +107,53 @@ function initWebGl(meshes, textures) {
     mat4.rotateX(tmp,tmp,degToRad(10));
     var barrel = new MeshObject(tmp, new RgbColor(142,80,0),meshes['barrel'], materialTmp, textures[0]);
     app.objects.push(barrel);
-    // barrel.initBuffers(gl);
 
     var palmTreeColor1 = new RgbColor(0, 142, 42);
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-200, 100,0]);
     var palmTree1 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree1.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100, 80]);
     mat4.rotateZ(tmp, tmp, degToRad(-20));
     var palmTree2 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree2.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100,5]);
     mat4.rotateX(tmp, tmp, degToRad(20));
     var palmTree3 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree3.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-350, 100,-30]);
     mat4.rotateY(tmp, tmp, degToRad(160));
     mat4.rotateX(tmp, tmp, degToRad(7));
     var palmTree4 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree4.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-300, 100, 80]);
     mat4.rotateZ(tmp, tmp, degToRad(-20));
     var palmTree5 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree5.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [-325, 100, 40]);
     mat4.rotateY(tmp, tmp, degToRad(40));
     var palmTree6 = new MeshObject(tmp, palmTreeColor1, meshes['palm-tree'], materialTmp, null);
-    // palmTree6.initBuffers(gl);
 
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [350, 100,15]);
     mat4.rotateY(tmp, tmp, degToRad(60));
     var otherPalmTree = new MeshObject(tmp, new RgbColor(2, 79, 0), meshes['palm-tree'], materialTmp, null);
-    // otherPalmTree.initBuffers(gl);
 
-
-    //
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [0, 210, 0]);
     mat4.rotateY(tmp, tmp, degToRad(180));
     mat4.scale(tmp,tmp,[40,40,40]);
     var lighthouse = new MeshObject(tmp, new RgbColor(255,0,0), meshes['lighthouse'], materialTmp, textures[1]);
-    // lighthouse.initBuffers(gl);
+    tmp = mat4.create();
+    mat4.translate(tmp, tmp, [-90,250, 90]);
+    mat4.scale(tmp, tmp, [30, 30, 30]);
+    var crate = new MeshObject(tmp, new RgbColor(142,80,0),meshes['crate'], materialTmp, textures[3]);
+
 
     app.objects.push(lighthouse);
     app.objects.push(palmTree1);
@@ -164,6 +163,7 @@ function initWebGl(meshes, textures) {
     app.objects.push(palmTree5);
     app.objects.push(palmTree6);
     app.objects.push(otherPalmTree);
+    app.objects.push(crate);
     //end
 
     app.objects.forEach(function (t) { t.initBuffers(gl);  });
@@ -185,6 +185,8 @@ function drawScene(gl) {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
+    gl.disable(gl.DEPTH_TEST);
+    app.objects[0].draw(gl, app);
     // Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
 
@@ -193,7 +195,8 @@ function drawScene(gl) {
     app.camera.aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
 
     app.objects.forEach(function (t, i) {
-        t.draw(gl, app);
+        if(i > 0)
+            t.draw(gl, app);
     });
 
 
@@ -280,11 +283,14 @@ var lastTimeBlink = 0;
 var framesCount = 0;
 function animate(deltaTime) {
     if(deltaTime > 0){
+        var skydome = app.objects[0];
         if(cameraMovementOffset.forward != 0.0){
             app.camera.moveForward(cameraMovementOffset.forward * deltaTime);
+            skydome.moveForward(cameraMovementOffset.forward * deltaTime);
         }
         if(cameraMovementOffset.right != 0.0) {
             app.camera.moveRight(cameraMovementOffset.right * deltaTime);
+            skydome.moveRight(cameraMovementOffset.right * deltaTime);
         }
 
         if(cameraMovementOffset.up != 0.0){
@@ -293,6 +299,9 @@ function animate(deltaTime) {
 
         app.camera.rotationX += cameraRotationOffset.up * deltaTime;
         app.camera.rotationY += cameraRotationOffset.right * deltaTime;
+        skydome.rotationY += cameraRotationOffset.right * deltaTime;
+
+        skydome.moveWithCamera(app.camera);
 
         lastTimeBlink += deltaTime;
         framesCount++;
