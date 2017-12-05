@@ -31,8 +31,8 @@ class Sphere extends SceneObject {
 
                 var normal = [x, y, z];
                 vec3.normalize(normal, normal);
-                // u = Math.asin(normal[0]) / 3.14 + 0.5;
-                // v = Math.asin(normal[1]) / 3.14 + 0.5;
+                u = Math.asin(normal[0]) / 3.14 + 0.5;
+                v = Math.asin(normal[1]) / 3.14 + 0.5;
 
                 this.normalData.push(x);
                 this.normalData.push(y);
@@ -79,7 +79,7 @@ class Sphere extends SceneObject {
             var texture = gl.createTexture();
             gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
             gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.texture.size - 1, this.texture.size - 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.texture.image);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.texture.size, this.texture.size, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.texture.image);
             // gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
@@ -107,6 +107,7 @@ class Sphere extends SceneObject {
             var texture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, texture);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.texture.image);
+            // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, this.texture.size, this.texture.size, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.texture.image);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR );
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR );
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);

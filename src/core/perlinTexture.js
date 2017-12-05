@@ -8,6 +8,7 @@ class PerlinNoiseTexture {
         this.size = size;
         this._gradient = [];
         this._data = [];
+        this._colorData = [];
         this.image = [];
     }
 
@@ -57,23 +58,81 @@ class PerlinNoiseTexture {
         return value;
     }
 
+    zeros(dimensions) {
+        var array = [];
+
+        for (var i = 0; i < dimensions[0]; ++i) {
+            array.push(dimensions.length == 1 ? 0 : this.zeros(dimensions.slice(1)));
+        }
+
+        return array;
+    }
+
     generateTexture() {
         this._initGradient();
 
-        var plainData = [];
-        for(var i = 0.0; i < this.size-1; i = i + 0.3) {
-            this._data.push([]);
-            for (var j = 0.0; j < this.size - 1; j = j + 0.4) {
-                var perlin = this._perlin(i, j);
-                var color = new RgbColor((1.0 + perlin) * 255, (1.0 + perlin) * 255, (1.0 + perlin) * 255);
+        var octaves = 10;
+        var min = Number.MAX_VALUE;
+        var max = Number.MIN_VALUE;
+        var frequence = 0.9;
+        var amplitude = 2.0;
+        var persistance = 0.25;
+        var width = this.size;
+        var height = this.size;
 
-                this._data[Math.floor(i)][Math.floor(j)] = color.getColorVector();
-                plainData.push(color.r);
-                plainData.push(color.g);
-                plainData.push(color.b);
-                plainData.push(1.0);
+        this._data = this.zeros([width, height]);
+
+        for(var octave = 0; octave < octaves; octave++) {
+            for(var offset = 0; offset < this.size * this.size; offset++) {
+                var i = Math.floor(offset / width);
+                var j = offset % width;
+
+                var noise = this._perlin(
+                    i * frequence / width,
+                    j * frequence / height
+                );
+
+                noise = this._data[i][j] += noise * amplitude;
+
+                min = Math.min(min, noise);
+                max = Math.max(max, noise);
+            }
+
+            frequence *= 2;
+            amplitude /= 2;
+        }
+
+        var plainData = [];
+        for(var i = 0; i < this._data.length; i++) {
+            this._colorData.push([]);
+            for(var j = 0; j < this._data[0].length; j++) {
+                var normalized = (this._data[i][j] - min) / (max - min);
+
+                this._colorData[i].push([]);
+                this._colorData[i][j] = [normalized, normalized, normalized, normalized];
+                var color = normalized * 255;
+                plainData.push(color);
+                plainData.push(color);
+                plainData.push(color);
+                plainData.push(255);
+
             }
         }
+        //
+        // var plainData = [];
+        // for(var i = 0.0; i < this.size-1; i = i + 0.3) {
+        //     this._data.push([]);
+        //     for (var j = 0.0; j < this.size - 1; j = j + 0.4) {
+        //         var perlin = this._perlin(i, j);
+        //         var color = new RgbColor((1.0 + perlin) * 255, (1.0 + perlin) * 255, (1.0 + perlin) * 255);
+        //
+        //         this._data[Math.floor(i)][Math.floor(j)] = color.getColorVector();
+        //         plainData.push(color.r);
+        //         plainData.push(color.g);
+        //         plainData.push(color.b);
+        //         plainData.push(1.0);
+        //     }
+        // }
 
         this.image = new Uint8Array(plainData);
 

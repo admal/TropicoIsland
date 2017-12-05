@@ -93,12 +93,21 @@ function initWebGl(meshes, textures) {
     mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
     app.objects.push(sea);
 
-    var terrainTexture = new PerlinNoiseTexture(100);
-    terrainTexture.generateTexture();
+    // mat4.translate(tmp, tmp, [0, 0, 0]);
+    tmp = mat4.create();
     mat4.translate(tmp, tmp, [0, -20, 0]);
     var island = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp, terrainTexture);
     mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
+
+    tmp = mat4.create();
+    var terrainTexture = new PerlinNoiseTexture(1024);
+    terrainTexture.generateTexture();
+    mat4.translate(tmp, tmp, [-800, -400, -1200]);
+
+    var island2 = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp, terrainTexture);
+    mat4.scale(island2.transformationMatrix, island2.transformationMatrix, [5, 1, 3]);
+    app.objects.push(island2);
 
     //init mesh objects
     //beczka

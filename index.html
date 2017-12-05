@@ -35,10 +35,10 @@
         if(u_usesHeightTexture == 1) {
             vec2 flipped_texcoord = vec2(a_texture.x, 1.0 - a_texture.y);
 
-            float displacement = 2.0 * texture2D(u_sampler, flipped_texcoord).x - 1.0;
+            float displacement = 2.0 * texture2D(u_sampler, flipped_texcoord).x;
 
             vec4 v = vec4(a_position);
-            v.y =  v.y + displacement * 5.0;
+            v.y =  v.y + displacement * 300.0;
             gl_Position = u_matrix * v;
 
         } else {
@@ -97,14 +97,6 @@
         vec3 color = uFogColor * (1.0 - fogFactor) + fragColor * fogFactor;
 
         gl_FragColor = vec4(color, 1.0);
-
-        /*if(u_usesTexture == 0) {
-            gl_FragColor = vec4(vec3(v_color) * v_LightWeighting, 1.0);
-        } else {
-            vec2 flipped_texcoord = vec2(v_texture.x, 1.0 - v_texture.y);
-            gl_FragColor = vec4(vec3(texture2D(u_sampler, flipped_texcoord.xy)) * v_LightWeighting, 1.0);
-        }*/
-
     }
 </script>
 

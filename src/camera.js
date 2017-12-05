@@ -8,7 +8,7 @@ class Camera {
         this.rotationY = 0.0; //in degrees
 
         this.xPos = 0.0;
-        this.yPos = -100.0;
+        this.yPos = -500.0;
         this.zPos = -650.0;
     }
 
