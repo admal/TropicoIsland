@@ -1,4 +1,4 @@
-var textureUrls = ["models/barrelS_D2.jpg", "models/lighthouse_texture.bmp", "models/skydome2.jpg", "models/crate_1.jpg"];
+var textureUrls = ["models/barrel2.jpg", "models/lighthouse_texture.bmp", "models/skydome2.jpg", "models/crate2.jpg"];
 
 function loadTextures(meshes, callback) {
     var textures = [];
@@ -20,7 +20,9 @@ function loadTextures(meshes, callback) {
     }
 }
 
+var select = null;
 window.onload = function () {
+    select = document.getElementById("resolution");
     OBJ.downloadMeshes({
             'palm-tree': 'models/palm_tree.obj',
             'barrel': 'models/barrel.obj',
@@ -43,7 +45,9 @@ var app = {
     models: [],
     directionalLight: null,
     pointLight: null,
-    gl: null
+    gl: null,
+    textureMode: 1,
+    resolution: null
 };
 
 function initWebGl(meshes, textures) {
@@ -88,9 +92,7 @@ function initWebGl(meshes, textures) {
     var materialTmp = new PhongMaterial(new RgbColor(255, 0,0),0.5,0.5, 5);
 
     var tmp = mat4.create();
-    // mat4.translate(tmp, tmp, [0, 1900, 650]);
     var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), meshes['skydome'], materialTmp, textures[2]);
-    // mat4.scale(skydome.transformationMatrix, skydome.transformationMatrix, [15, 10, 15]);
     app.objects.push(skydome);
 
     tmp = mat4.create();
@@ -98,10 +100,9 @@ function initWebGl(meshes, textures) {
     mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [250, 1, 250]);
     app.objects.push(sea);
 
-    // mat4.translate(tmp, tmp, [0, 0, 0]);
     tmp = mat4.create();
     mat4.translate(tmp, tmp, [0, -20, 0]);
-    var island = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp, terrainTexture);
+    var island = new Sphere(tmp, new RgbColor(255,243,178),200 , materialTmp);
     mat4.scale(island.transformationMatrix, island.transformationMatrix, [3, 1.3, 2]);
     app.objects.push(island);
 
@@ -195,7 +196,21 @@ function initWebGl(meshes, textures) {
 function drawScene(gl) {
     webglUtils.fillScreen(gl.canvas);
     // Tell WebGL how to convert from clip space to pixels
-    gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+    var width = 0;
+    var height = 0;
+
+    var res = JSON.parse(select.options[select.selectedIndex].value);
+    app.resolution = res;
+
+    if(app.resolution == null) {
+        width = gl.canvas.width;
+        height = gl.canvas.height;
+    } else {
+        width = app.resolution[0];
+        height = app.resolution[1];
+    }
+
+    gl.viewport(0, 0, width, height);
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -281,6 +296,13 @@ function handleKeys() {
         cameraRotationOffset.right = -rotateStep;
     } else {
         cameraRotationOffset.right = 0;
+    }
+
+    if(currentlyPressedKeys[27]) {
+        var gui = document.getElementById('gui');
+        var newStyle = gui.style.display == 'none' ? 'block' : 'none';
+        gui.style.display = newStyle;
+        currentlyPressedKeys[27] = false;
     }
 
     document.getElementById('camera-info').innerHTML = app.camera.toString();

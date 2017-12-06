@@ -94,19 +94,26 @@
         float fogFactor = clamp((uFogDist.y - v_dist) / (uFogDist.y - uFogDist.x), 0.0, 1.0);
         vec3 color = mix(uFogColor, fragColor, fogFactor);
 
-        gl_FragColor = vec4(color, 1.0);
-        //gl_FragColor = vec4(fragColor, 1.0);
+        //gl_FragColor = vec4(color, 1.0);
+        gl_FragColor = vec4(fragColor, 1.0);
     }
 </script>
 
 <!--MAIN CANVAS-->
-<div class="debug-info" style="display: block;">
+<div class="debug-info" id="gui" style="display: block;">
     <span>FPS:</span> <span id="frames"></span> <br>
     <span>Camera info: </span>
     <span id="camera-info"></span>
     <br>
     <span>Skydome info</span>
     <span id="sphere-info"></span>
+    <br>
+    <select id="resolution">
+        <option value="null">Full screen</option>
+        <option value="[1440, 900]">1440 x 900</option>
+        <option value="[800, 480]">800 x 480</option>
+        <option value="[640, 480]">640 x 480</option>
+    </select>
 </div>
 <canvas id="main-canvas"></canvas>
 
