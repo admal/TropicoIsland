@@ -1,4 +1,4 @@
-var textureUrls = ["models/barrelS_D2.jpg", "models/lighthouse_texture.bmp", "models/Sky019.jpg", "models/crate_1.jpg"];
+var textureUrls = ["models/barrelS_D2.jpg", "models/lighthouse_texture.bmp", "models/skydome2.jpg", "models/crate_1.jpg"];
 
 function loadTextures(meshes, callback) {
     var textures = [];
@@ -25,7 +25,8 @@ window.onload = function () {
             'palm-tree': 'models/palm_tree.obj',
             'barrel': 'models/barrel.obj',
             'lighthouse': 'models/lighthouse.obj',
-            'crate': 'models/Crate1.obj'
+            'crate': 'models/Crate1.obj',
+            'skydome': 'models/skydome5.obj'
         }, function (meshes) {
             loadTextures(meshes, initWebGl);
         }
@@ -83,12 +84,16 @@ function initWebGl(meshes, textures) {
 
     //INIT BUFFERS
     var materialTmp = new PhongMaterial(new RgbColor(255, 0,0),0.5,0.5, 5);
-    tmp = mat4.create();
-    var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), 200, materialTmp, textures[2]);
-    mat4.translate(skydome.transformationMatrix, skydome.transformationMatrix, [app.camera.xPos, app.camera.yPos, app.camera.zPos])
-    app.objects.push(skydome);
 
     var tmp = mat4.create();
+    // var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), meshes['skydome'], materialTmp, textures[2]);
+    mat4.translate(tmp, tmp, [0, 1900, 0]);
+    var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), meshes['skydome'], materialTmp, textures[2]);
+    mat4.scale(skydome.transformationMatrix, skydome.transformationMatrix, [15, 10, 15]);
+    // mat4.translate(skydome.transformationMatrix, skydome.transformationMatrix, [app.camera.xPos, app.camera.yPos, app.camera.zPos])
+    app.objects.push(skydome);
+
+    tmp = mat4.create();
     var sea = new Plane(mat4.create(), new RgbColor(0,0,255), [1000, 1000], materialTmp);
     mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
     app.objects.push(sea);
@@ -194,7 +199,8 @@ function drawScene(gl) {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.disable(gl.DEPTH_TEST);
+    // gl.enable(gl.DEPTH_TEST);
+    // gl.disable(gl.DEPTH_TEST);
     app.objects[0].draw(gl, app);
     // Enable the depth buffer
     gl.enable(gl.DEPTH_TEST);
@@ -294,12 +300,14 @@ function animate(deltaTime) {
     if(deltaTime > 0){
         var skydome = app.objects[0];
         if(cameraMovementOffset.forward != 0.0){
-            app.camera.moveForward(cameraMovementOffset.forward * deltaTime);
-            skydome.moveForward(cameraMovementOffset.forward * deltaTime);
+            var step = cameraMovementOffset.forward * deltaTime;
+            app.camera.moveForward(step);
+            skydome.moveForward(-step);
         }
         if(cameraMovementOffset.right != 0.0) {
-            app.camera.moveRight(cameraMovementOffset.right * deltaTime);
-            skydome.moveRight(cameraMovementOffset.right * deltaTime);
+            var step = cameraMovementOffset.right * deltaTime;
+            app.camera.moveRight(step);
+            skydome.moveRight(-step);
         }
 
         if(cameraMovementOffset.up != 0.0){
@@ -307,10 +315,12 @@ function animate(deltaTime) {
         }
 
         app.camera.rotationX += cameraRotationOffset.up * deltaTime;
-        app.camera.rotationY += cameraRotationOffset.right * deltaTime;
-        skydome.rotationY += cameraRotationOffset.right * deltaTime;
 
-        skydome.moveWithCamera(app.camera);
+        var rotation = cameraRotationOffset.right * deltaTime;
+        app.camera.rotationY += rotation ;
+        skydome.rotationY += rotation;
+
+        skydome.moveWithCamera();
 
         lastTimeBlink += deltaTime;
         framesCount++;

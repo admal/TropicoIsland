@@ -2,7 +2,6 @@ class MeshObject extends SceneObject {
     constructor(initialPosition, color, mesh, material, texture) {
         super(initialPosition, color, material);
         this._mesh = mesh;
-
         this.usesTexture = texture != null;
         this.texture = texture;
     }

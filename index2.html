@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<canvas id="terrain"></canvas>
+<span id="url"></span>
+
+
+
+<script src="src/core/rgbColor.js"></script>
+<script src="src/core/texture.js"></script>
+<script src="src/core/perlinTexture.js"></script>
+<script src="src/sceneObjects/sceneObject.js"></script>
+<!-- LIBRARIES -->
+<script src="lib/gl-matrix.js"></script>
+<script src="lib/webgl-obj-loader.js"></script>
+
+<!-- SOURCES -->
+<script src="src/camera.js"></script>
+<script src="src/materials/phong.js"></script>
+<script src="src/lighting/directionalLight.js"></script>
+<script src="src/lighting/pointLight.js"></script>
+<script src="src/sceneObjects/meshObject.js"></script>
+<script src="src/sceneObjects/sphere.js"></script>
+<script src="src/sceneObjects/plain.js"></script>
+<script src="src/utils-webgl.js"></script>
+<script src="src/drawing-utils.js"></script>
+<!--<script src="index.js"></script>-->
+
+<script>
+    var terrainTexture = new PerlinNoiseTexture(1024);
+    terrainTexture.generateTexture();
+
+    var width = terrainTexture._colorData.length;
+    var height = terrainTexture._colorData[0].length;
+    var buffer = new Uint8ClampedArray(width * height * 4);
+    for(var y = 0; y < height; y++) {
+        for(var x = 0; x < width; x++) {
+            var pos = (y * width + x) * 4; // position in buffer based on x and y
+            buffer[pos  ] = terrainTexture.image[pos];           // some R value [0, 255]
+            buffer[pos+1] = terrainTexture.image[pos];
+            buffer[pos+2] = terrainTexture.image[pos];
+            buffer[pos+3] = 255;           // set alpha channel
+        }
+    }
+
+    var canvas = document.getElementById('terrain'),
+        ctx = canvas.getContext('2d');
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // create imageData object
+    var idata = ctx.createImageData(width, height);
+
+    // set our buffer as source
+    idata.data.set(buffer);
+
+    // update canvas with new data
+    ctx.putImageData(idata, 0, 0);
+
+    var dataUri = canvas.toDataURL();
+    document.getElementById("url").innerHTML ='<a href="' + dataUri + '">IMAGE</a>';
+</script>
+</body>
+</html>

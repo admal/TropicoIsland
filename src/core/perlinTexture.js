@@ -74,9 +74,8 @@ class PerlinNoiseTexture {
         var octaves = 10;
         var min = Number.MAX_VALUE;
         var max = Number.MIN_VALUE;
-        var frequence = 0.9;
+        var frequency = 0.9;
         var amplitude = 2.0;
-        var persistance = 0.25;
         var width = this.size;
         var height = this.size;
 
@@ -88,8 +87,8 @@ class PerlinNoiseTexture {
                 var j = offset % width;
 
                 var noise = this._perlin(
-                    i * frequence / width,
-                    j * frequence / height
+                    i * frequency / width,
+                    j * frequency / height
                 );
 
                 noise = this._data[i][j] += noise * amplitude;
@@ -98,7 +97,7 @@ class PerlinNoiseTexture {
                 max = Math.max(max, noise);
             }
 
-            frequence *= 2;
+            frequency *= 2;
             amplitude /= 2;
         }
 
