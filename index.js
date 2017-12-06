@@ -47,12 +47,15 @@ var app = {
     pointLight: null,
     gl: null,
     textureMode: 1,
-    resolution: null
+    resolution: null,
+    useFog: false,
+    loaded: false,
+    magnitudeNearestFilter: false
 };
 
 function initWebGl(meshes, textures) {
     var canvas = document.getElementById('main-canvas');
-    var gl = canvas.getContext('webgl');
+    var gl = canvas.getContext('webgl2');
 
     if(!gl){
         console.error('WebGL is not supported by current browser!');
@@ -78,6 +81,7 @@ function initWebGl(meshes, textures) {
     program.pointLightColor = gl.getUniformLocation(program, "u_pointLightColor");
     program.usesTexture = gl.getUniformLocation(program, "u_usesTexture");
     program.usesHeightTexture = gl.getUniformLocation(program, "u_usesHeightTexture");
+    program.usesFog = gl.getUniformLocation(program, "u_usesFog");
     program.textureSampler = gl.getUniformLocation(program, "u_sampler");
     program.inversedTransposedWorldMatrix = gl.getUniformLocation(program, "u_worldInverseTranspose");
     program.cameraPosition = gl.getUniformLocation(program, "u_cameraPosition");
@@ -181,6 +185,7 @@ function initWebGl(meshes, textures) {
     app.objects.push(crate);
     //end
 
+    app.loaded = true;
     app.objects.forEach(function (t) { t.initBuffers(gl);  });
 
     app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], new RgbColor(204, 204, 204));
@@ -205,9 +210,20 @@ function drawScene(gl) {
     if(app.resolution == null) {
         width = gl.canvas.width;
         height = gl.canvas.height;
+        app.camera.aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
     } else {
         width = app.resolution[0];
         height = app.resolution[1];
+        app.camera.aspectRatio = width / height;
+    }
+
+    var useFog = document.getElementById("useFog").checked;
+    app.useFog = useFog;
+
+    app.magnitudeNearestFilter = document.getElementById("useMagnitudeNear").checked;
+
+    if(app.loaded) {
+        document.getElementById("loading").style.display = 'none';
     }
 
     gl.viewport(0, 0, width, height);
@@ -222,7 +238,6 @@ function drawScene(gl) {
 
     gl.useProgram(app.program);
 
-    app.camera.aspectRatio = gl.canvas.clientWidth / gl.canvas.clientHeight;
 
     app.objects.forEach(function (t, i) {
         if(i > 0)

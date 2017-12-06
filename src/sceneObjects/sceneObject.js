@@ -92,16 +92,26 @@ class  SceneObject {
         var usesTexture = this.usesTexture ? 1 : 0;
         var usesHeightTexture = this.usesHeightTexture ? 1 : 0;
         var usesLighting = this.usesLighting ? 1 : 0;
+        var usesFog = app.useFog ? 1 : 0;
 
         if(this.usesTexture || this.usesHeightTexture) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
+
+            if(app.magnitudeNearestFilter) {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
+            } else {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            }
         }
 
         gl.uniform1i(app.program.usesTexture, usesTexture);
         gl.uniform1i(app.program.usesHeightTexture, usesHeightTexture);
         gl.uniform1i(app.program.usesLighting, usesLighting);
         gl.uniform1i(app.program.textureSampler, 0);
+        gl.uniform1i(app.program.usesFog, usesFog);
 
 
         gl.uniformMatrix4fv(app.program.matrixUniform, false, worldViewProjectionMatrix);
