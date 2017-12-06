@@ -106,6 +106,11 @@ class  SceneObject {
 
         gl.uniformMatrix4fv(app.program.matrixUniform, false, worldViewProjectionMatrix);
         gl.uniformMatrix4fv(app.program.inversedTransposedWorldMatrix, false, worldInverseTransposeMatrix);
+
+        var cameraPosition = vec3.create();
+        mat4.getTranslation(cameraPosition, cameraRet.cameraMatrix);
+        gl.uniform3fv(app.program.cameraPosition, cameraPosition);
+
         app.directionalLight.setUniforms(gl, app.program);
         app.pointLight.setUniforms(gl, app.program);
         this.material.setUniforms(gl, app.program, app.camera);

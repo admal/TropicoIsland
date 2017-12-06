@@ -15,6 +15,7 @@
 
     uniform mat4 u_matrix;
     uniform mat4 u_worldInverseTranspose;
+    uniform vec3 u_cameraPosition;
     varying vec4 v_color;
     varying vec3 v_normal;
     varying vec2 v_texture;
@@ -29,7 +30,7 @@
     vec3 ambient = vec3(0.2, 0.2, 0.2);
 
     varying vec3 v_LightWeighting;
-    varying float vDist;
+    varying float v_dist;
 
     void main() {
         if(u_usesHeightTexture == 1) {
@@ -42,7 +43,7 @@
             gl_Position = u_matrix * v;
 
         } else {
-            gl_Position =u_matrix * a_position;
+            gl_Position = u_matrix * a_position;
         }
 
         vec3 proper_normal = mat3(u_worldInverseTranspose) * normalize(a_normal);
@@ -54,7 +55,7 @@
 
 
         // Pass the color to the fragment shader.
-        vDist = 1.0 ;//distance(u_matrix * a_position, u_worldInverseTranspose);
+        v_dist = distance(u_matrix * vec4(a_position), vec4(u_cameraPosition, 0.0));
         v_color = u_color;
         v_texture = a_texture;
     }
@@ -67,18 +68,15 @@
     varying vec4 v_color;
     varying vec3 v_LightWeighting;
     varying vec2 v_texture;
-    varying float vDist;
+    varying float v_dist;
 
     uniform sampler2D u_sampler;
     uniform int u_usesTexture;
     uniform int u_usesLighting;
 
-    //uniform vec3 uFogColor; // Color of Fog
-    //uniform vec2 uFogDist;  // Distance of Fog (starting point, end point)
-
     void main() {
         vec3 uFogColor  = vec3(0.8, 0.8, 0.8);
-        vec2 uFogDist = vec2(0, 50);
+        vec2 uFogDist = vec2(1000, 4000);
 
         vec3 fragColor;
 
@@ -93,10 +91,11 @@
             fragColor = fragColor * v_LightWeighting;
         }
 
-        float fogFactor = clamp((uFogDist.y - vDist) / (uFogDist.y - uFogDist.x), 0.0, 1.0);
-        vec3 color = uFogColor * (1.0 - fogFactor) + fragColor * fogFactor;
+        float fogFactor = clamp((uFogDist.y - v_dist) / (uFogDist.y - uFogDist.x), 0.0, 1.0);
+        vec3 color = mix(uFogColor, fragColor, fogFactor);
 
         gl_FragColor = vec4(color, 1.0);
+        //gl_FragColor = vec4(fragColor, 1.0);
     }
 </script>
 

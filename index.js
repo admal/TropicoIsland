@@ -26,7 +26,8 @@ window.onload = function () {
             'barrel': 'models/barrel.obj',
             'lighthouse': 'models/lighthouse.obj',
             'crate': 'models/Crate1.obj',
-            'skydome': 'models/skydome5.obj'
+            'skydome': 'models/skydome5.obj',
+            'plane': 'models/plane.obj',
         }, function (meshes) {
             loadTextures(meshes, initWebGl);
         }
@@ -75,6 +76,7 @@ function initWebGl(meshes, textures) {
     program.usesHeightTexture = gl.getUniformLocation(program, "u_usesHeightTexture");
     program.textureSampler = gl.getUniformLocation(program, "u_sampler");
     program.inversedTransposedWorldMatrix = gl.getUniformLocation(program, "u_worldInverseTranspose");
+    program.cameraPosition = gl.getUniformLocation(program, "u_cameraPosition");
 
     program.diffuseUniform = gl.getUniformLocation(program, "u_diffuse");
     program.specularUniform = gl.getUniformLocation(program, "u_specular");
@@ -86,16 +88,14 @@ function initWebGl(meshes, textures) {
     var materialTmp = new PhongMaterial(new RgbColor(255, 0,0),0.5,0.5, 5);
 
     var tmp = mat4.create();
-    // var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), meshes['skydome'], materialTmp, textures[2]);
-    mat4.translate(tmp, tmp, [0, 1900, 0]);
+    // mat4.translate(tmp, tmp, [0, 1900, 650]);
     var skydome = new Skydome(tmp, new RgbColor(165, 236, 255), meshes['skydome'], materialTmp, textures[2]);
-    mat4.scale(skydome.transformationMatrix, skydome.transformationMatrix, [15, 10, 15]);
-    // mat4.translate(skydome.transformationMatrix, skydome.transformationMatrix, [app.camera.xPos, app.camera.yPos, app.camera.zPos])
+    // mat4.scale(skydome.transformationMatrix, skydome.transformationMatrix, [15, 10, 15]);
     app.objects.push(skydome);
 
     tmp = mat4.create();
-    var sea = new Plane(mat4.create(), new RgbColor(0,0,255), [1000, 1000], materialTmp);
-    mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [400, 1, 400]);
+    var sea = new MeshObject(mat4.create(), new RgbColor(0,0,255), meshes['plane'], materialTmp);
+    mat4.scale(sea.transformationMatrix, sea.transformationMatrix, [250, 1, 250]);
     app.objects.push(sea);
 
     // mat4.translate(tmp, tmp, [0, 0, 0]);
@@ -199,7 +199,7 @@ function drawScene(gl) {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);
     // gl.disable(gl.DEPTH_TEST);
     app.objects[0].draw(gl, app);
     // Enable the depth buffer
@@ -302,12 +302,12 @@ function animate(deltaTime) {
         if(cameraMovementOffset.forward != 0.0){
             var step = cameraMovementOffset.forward * deltaTime;
             app.camera.moveForward(step);
-            skydome.moveForward(-step);
+            skydome.moveForward(step);
         }
         if(cameraMovementOffset.right != 0.0) {
             var step = cameraMovementOffset.right * deltaTime;
             app.camera.moveRight(step);
-            skydome.moveRight(-step);
+            skydome.moveRight(step);
         }
 
         if(cameraMovementOffset.up != 0.0){
