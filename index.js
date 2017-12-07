@@ -50,7 +50,9 @@ var app = {
     resolution: null,
     useFog: false,
     loaded: false,
-    magnitudeNearestFilter: false
+    magnitudeNearestFilter: false,
+    mipMapLinearFilter: false,
+    mipMapLevels: 0
 };
 
 function initWebGl(meshes, textures) {
@@ -186,6 +188,7 @@ function initWebGl(meshes, textures) {
     //end
 
     app.loaded = true;
+
     app.objects.forEach(function (t) { t.initBuffers(gl);  });
 
     app.directionalLight = new DirectionalLight([-0.25, -0.25, -1], new RgbColor(204, 204, 204));
@@ -221,6 +224,14 @@ function drawScene(gl) {
     app.useFog = useFog;
 
     app.magnitudeNearestFilter = document.getElementById("useMagnitudeNear").checked;
+    app.mipMapLinearFilter = document.getElementById("useMipMapLinearFilter").checked;
+
+    var val = document.getElementById("mipmapLevel").value;
+    if(val == null || val == "" || val == undefined || val < 0 || val > 8) {
+        app.mipMapLevels = 1;
+    } else {
+        app.mipMapLevels = val;
+    }
 
     if(app.loaded) {
         document.getElementById("loading").style.display = 'none';
@@ -243,8 +254,6 @@ function drawScene(gl) {
         if(i > 0)
             t.draw(gl, app);
     });
-
-
 }
 
 var currentlyPressedKeys = {};
@@ -313,11 +322,11 @@ function handleKeys() {
         cameraRotationOffset.right = 0;
     }
 
-    if(currentlyPressedKeys[27]) {
+    if(currentlyPressedKeys[81]) {
         var gui = document.getElementById('gui');
         var newStyle = gui.style.display == 'none' ? 'block' : 'none';
         gui.style.display = newStyle;
-        currentlyPressedKeys[27] = false;
+        currentlyPressedKeys[81] = false;
     }
 
     document.getElementById('camera-info').innerHTML = app.camera.toString();

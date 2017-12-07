@@ -97,14 +97,20 @@ class  SceneObject {
         if(this.usesTexture || this.usesHeightTexture) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.glTexture);
+            gl.generateMipmap(gl.TEXTURE_2D);
 
             if(app.magnitudeNearestFilter) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST);
             } else {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
             }
+
+            if(app.mipMapLinearFilter) {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+            } else {
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_NEAREST );
+            }
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_BASE_LEVEL, app.mipMapLevels);
         }
 
         gl.uniform1i(app.program.usesTexture, usesTexture);
